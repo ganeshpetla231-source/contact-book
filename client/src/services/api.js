@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://contact-book-backend-wt1g.onrender.com",
+  baseURL: "https://contact-book-backend-wt1g.onrender.com/api",
   headers: { "Content-Type": "application/json" },
 });
 
