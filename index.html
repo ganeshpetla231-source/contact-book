@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f0e8" />
+    <title>Contact Book</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Contact Book home">
+          <span class="brand-mark">C</span>
+          <span>Contact Book</span>
+        </a>
+        <div class="topbar-actions">
+          <span class="saved-state"><span class="status-dot"></span> Saved locally</span>
+          <button class="avatar" type="button" aria-label="Open profile menu">G</button>
+        </div>
+      </header>
+
+      <main id="top" class="layout">
+        <aside class="sidebar">
+          <div class="sidebar-intro">
+            <p class="eyebrow">Your people, together</p>
+            <h1>Keep in touch.</h1>
+            <p class="muted">A calmer way to keep the important names close.</p>
+          </div>
+          <nav class="primary-nav" aria-label="Main navigation">
+            <button class="nav-item active" type="button" data-view="contacts"><span class="nav-icon">⌕</span> All contacts <span class="nav-count" id="allCount">0</span></button>
+            <button class="nav-item" type="button" data-view="favourites"><span class="nav-icon star-icon">★</span> Favourites <span class="nav-count" id="favouriteCount">0</span></button>
+            <div class="nav-section-label">Groups</div>
+            <div id="groupNav"></div>
+            <button class="add-group-link" type="button" id="addGroupButton"><span>＋</span> New group</button>
+          </nav>
+          <div class="sidebar-note">
+            <span class="note-spark">✦</span>
+            <p><strong>Small tip</strong><br />Use groups to make your list feel less like a list.</p>
+          </div>
+        </aside>
+
+        <section class="content">
+          <div class="content-heading">
+            <div>
+              <p class="eyebrow" id="viewEyebrow">CONTACTS</p>
+              <h2 id="viewTitle">All contacts</h2>
+            </div>
+            <button class="button button-primary" type="button" id="addContactButton"><span>＋</span> Add contact</button>
+          </div>
+
+          <div class="stats-row" aria-label="Contact statistics">
+            <div class="stat-card"><span class="stat-icon coral">◌</span><div><strong id="totalStat">0</strong><span>Total contacts</span></div></div>
+            <div class="stat-card"><span class="stat-icon yellow">★</span><div><strong id="favouriteStat">0</strong><span>Favourites</span></div></div>
+            <div class="stat-card"><span class="stat-icon green">⌁</span><div><strong id="groupStat">0</strong><span>Groups</span></div></div>
+          </div>
+
+          <div class="toolbar">
+            <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search by name, phone or email..." autocomplete="off" /></label>
+            <div class="toolbar-actions"><button class="filter-button" type="button" id="sortButton">Recently added <span>⌄</span></button></div>
+          </div>
+
+          <div class="list-header"><span id="resultLabel">CONTACTS</span><span id="resultCount">0 people</span></div>
+          <div class="contact-list" id="contactList"></div>
+          <div class="empty-state hidden" id="emptyState">
+            <div class="empty-icon">⌕</div>
+            <h3>No contacts here yet</h3>
+            <p>Add someone new or try a different search.</p>
+            <button class="button button-secondary" type="button" id="emptyAddButton">Add your first contact</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="modal" id="contactModal">
+      <form method="dialog" id="contactForm" class="modal-form">
+        <button class="close-button" type="button" data-close="contactModal" aria-label="Close">×</button>
+        <p class="eyebrow">CONTACT DETAILS</p>
+        <h2 id="modalTitle">Add a contact</h2>
+        <p class="muted">Keep the details you reach for most.</p>
+        <input type="hidden" id="contactId" />
+        <div class="form-grid">
+          <label class="field field-full">Name <input id="nameInput" required type="text" placeholder="e.g. Maya Chen" /></label>
+          <label class="field">Phone <input id="phoneInput" required type="tel" placeholder="+1 555 000 0000" /></label>
+          <label class="field">Email <input id="emailInput" type="email" placeholder="maya@example.com" /></label>
+          <label class="field field-full">Group <select id="groupInput"></select></label>
+          <label class="field field-full">Notes <textarea id="notesInput" rows="3" placeholder="Add a little context..."></textarea></label>
+        </div>
+        <div class="modal-actions"><button class="button button-secondary" type="button" data-close="contactModal">Cancel</button><button class="button button-primary" type="submit">Save contact</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="modal small-modal" id="groupModal">
+      <form method="dialog" id="groupForm" class="modal-form">
+        <button class="close-button" type="button" data-close="groupModal" aria-label="Close">×</button>
+        <p class="eyebrow">NEW GROUP</p>
+        <h2>Create a group</h2>
+        <p class="muted">Give your people a useful home.</p>
+        <label class="field">Group name <input id="groupNameInput" required type="text" placeholder="e.g. Family" /></label>
+        <div class="modal-actions"><button class="button button-secondary" type="button" data-close="groupModal">Cancel</button><button class="button button-primary" type="submit">Create group</button></div>
+      </form>
+    </dialog>
+    <script src="app.js"></script>
+  </body>
+</html>

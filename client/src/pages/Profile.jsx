@@ -1,0 +1,14 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import ContactBookLayout from "../components/ContactBookLayout";
+import BookPage from "../components/BookPage";
+import Loader from "../components/Loader";
+import { useAuth } from "../context/AuthContext";
+import { getContactStats } from "../services/contacts";
+
+export default function Profile() {
+  const { user, logout, updateProfilePhoto } = useAuth(); const [stats, setStats] = useState(null); const [photoError, setPhotoError] = useState(""); const [savingPhoto, setSavingPhoto] = useState(false);
+  useEffect(() => { getContactStats().then((response) => setStats(response.data)).catch(() => setStats({ total: 0, favourites: 0 })); }, []);
+  const choosePhoto = (event) => { const file = event.target.files?.[0]; if (!file) return; setPhotoError(""); if (!file.type.startsWith("image/")) return setPhotoError("Please choose an image file."); if (file.size > 3 * 1024 * 1024) return setPhotoError("Choose an image smaller than 3 MB."); const reader = new FileReader(); reader.onload = () => { const image = new Image(); image.onload = async () => { const canvas = document.createElement("canvas"); const scale = Math.min(1, 600 / Math.max(image.width, image.height)); canvas.width = Math.round(image.width * scale); canvas.height = Math.round(image.height * scale); canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height); setSavingPhoto(true); try { await updateProfilePhoto(canvas.toDataURL("image/jpeg", .82)); } catch (error) { setPhotoError(error.response?.data?.message || "Unable to save your photo."); } finally { setSavingPhoto(false); } }; image.src = reader.result; }; reader.readAsDataURL(file); };
+  return <ContactBookLayout><BookPage className="profile-page" eyebrow="THE OWNER'S PAGE" title="Your profile"><div className="diary-profile"><div className="owner-photo-wrap">{user?.photo ? <img className="large-avatar owner-photo" src={user.photo} alt={`${user.name} profile`} /> : <span className="large-avatar">{user?.name?.slice(0, 1).toUpperCase()}</span>}<label className="photo-button owner-photo-button">{savingPhoto ? "Saving..." : "Add photo"}<input type="file" accept="image/*" onChange={choosePhoto} disabled={savingPhoto} /></label></div><div><p className="card-category">This book belongs to</p><h2>{user?.name}</h2><p>{user?.email}</p>{photoError && <p className="form-error">{photoError}</p>}</div></div>{stats ? <div className="profile-stats"><div><strong>{stats.total}</strong><span>Contacts saved</span></div><div><strong>{stats.favourites}</strong><span>Favorites kept</span></div></div> : <Loader label="Counting pages..." />}<div className="profile-actions"><Link className="gold-button" to="/contacts/new">Write a new contact</Link><button className="outline-button danger" onClick={logout}>Log out</button></div></BookPage></ContactBookLayout>;
+}

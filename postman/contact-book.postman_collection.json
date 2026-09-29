@@ -1,0 +1,332 @@
+{
+  "info": {
+    "name": "Contact Book API",
+    "description": "Auth, groups, contacts, search, favourites, group filtering, and stats for the Contact Book API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "groupId", "value": "replace-with-group-id" },
+    { "key": "contactId", "value": "replace-with-contact-id" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Ganesh User\",\n  \"email\": \"ganesh@example.com\",\n  \"password\": \"password123\"\n}" },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Register - Missing Name (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"missing-name@example.com\",\n  \"password\": \"password123\"\n}" },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login - Save Token",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Login succeeded', function () {",
+                "    pm.response.to.have.status(200);",
+                "});",
+                "const json = pm.response.json();",
+                "pm.collectionVariables.set('token', json.token);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"ganesh@example.com\",\n  \"password\": \"password123\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login - Invalid Credentials (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"nobody@example.com\",\n  \"password\": \"wrong-password\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        },
+        {
+          "name": "Me - No Token (401)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Groups",
+      "item": [
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Family\"\n}" },
+            "url": "{{baseUrl}}/api/groups"
+          }
+        },
+        {
+          "name": "Create Group - Missing Name (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": "{{baseUrl}}/api/groups"
+          }
+        },
+        {
+          "name": "Create Group - No Token (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Private\"\n}" },
+            "url": "{{baseUrl}}/api/groups"
+          }
+        },
+        {
+          "name": "List Groups",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/groups?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Get Group",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/groups/{{groupId}}"
+          }
+        },
+        {
+          "name": "Get Group - Wrong ID (404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/groups/000000000000000000000000"
+          }
+        },
+        {
+          "name": "Update Group",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Close Family\"\n}" },
+            "url": "{{baseUrl}}/api/groups/{{groupId}}"
+          }
+        },
+        {
+          "name": "Update Group - Missing Name (400)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": "{{baseUrl}}/api/groups/{{groupId}}"
+          }
+        },
+        {
+          "name": "Delete Group",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/groups/{{groupId}}"
+          }
+        },
+        {
+          "name": "Delete Group - Wrong ID (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/groups/000000000000000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "item": [
+        {
+          "name": "Create Contact",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Maya Chen\",\n  \"phone\": \"+1 415 555 0182\",\n  \"email\": \"maya@example.com\",\n  \"notes\": \"Sunday dinner person\",\n  \"group\": \"{{groupId}}\",\n  \"isFavourite\": true\n}" },
+            "url": "{{baseUrl}}/api/contacts"
+          }
+        },
+        {
+          "name": "Create Contact - Missing Phone (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Missing Phone\"\n}" },
+            "url": "{{baseUrl}}/api/contacts"
+          }
+        },
+        {
+          "name": "Create Contact - No Token (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Private Contact\",\n  \"phone\": \"+1 555 000 0000\"\n}" },
+            "url": "{{baseUrl}}/api/contacts"
+          }
+        },
+        {
+          "name": "List Contacts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Get Contact",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/{{contactId}}"
+          }
+        },
+        {
+          "name": "Get Contact - Wrong ID (404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/000000000000000000000000"
+          }
+        },
+        {
+          "name": "Update Contact",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Maya Chen Updated\",\n  \"phone\": \"+1 415 555 0182\",\n  \"email\": \"maya.updated@example.com\",\n  \"notes\": \"Updated notes\",\n  \"group\": \"{{groupId}}\",\n  \"isFavourite\": true\n}" },
+            "url": "{{baseUrl}}/api/contacts/{{contactId}}"
+          }
+        },
+        {
+          "name": "Update Contact - Missing Name (400)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+1 555 111 2222\"\n}" },
+            "url": "{{baseUrl}}/api/contacts/{{contactId}}"
+          }
+        },
+        {
+          "name": "Delete Contact",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/{{contactId}}"
+          }
+        },
+        {
+          "name": "Delete Contact - Wrong ID (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/000000000000000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contact Special Features",
+      "item": [
+        {
+          "name": "Search Contacts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/search?q=maya&page=1&limit=10"
+          }
+        },
+        {
+          "name": "Search Contacts - Missing Query (400)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/search"
+          }
+        },
+        {
+          "name": "Toggle Favourite",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/{{contactId}}/favourite"
+          }
+        },
+        {
+          "name": "Toggle Favourite - Wrong ID (404)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/000000000000000000000000/favourite"
+          }
+        },
+        {
+          "name": "Contacts By Group",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/group/{{groupId}}?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Contacts By Group - Wrong ID (404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/group/000000000000000000000000?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Contact Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/contacts/stats"
+          }
+        },
+        {
+          "name": "Contact Stats - No Token (401)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/contacts/stats"
+          }
+        }
+      ]
+    }
+  ]
+}
